@@ -6,6 +6,7 @@ int countIfaces = 0;
 void set_paths(char **p_daem,  char **p_stat, char **p_iface);
 static void getInterfaces();
 
+
 int main(int argc, char* argv[])
 {
     char *path_daemon = NULL, *path_stat = NULL, *path_iface = NULL;

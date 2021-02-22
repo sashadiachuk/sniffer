@@ -4,7 +4,6 @@ void process_packet(unsigned char *buffer, struct ip_stat *stat, int *n);
 int saddr_size, data_size, sock_raw;
 struct sockaddr saddr;
 
-
 int main()
 {
 

@@ -33,6 +33,7 @@ struct ip_stat {
 };
 void read_stat();
 
+
 void output(const char *stat_file) {
     // read statistics
     struct ip_stat * stat = malloc(65536);
