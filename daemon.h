@@ -15,7 +15,6 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 
-
 #include<netinet/ip_icmp.h>	//Provides declarations for icmp header
 #include<netinet/udp.h>	//Provides declarations for udp header
 #include<netinet/tcp.h>	//Provides declarations for tcp header
@@ -31,34 +30,57 @@ struct ip_stat {
     unsigned int counter;
     char iface[20];
 };
+
 void read_stat();
 
-
-void output(const char *stat_file) {
-    // read statistics
-    struct ip_stat * stat = malloc(65536);
+void outputall(const char* stat_file)
+{
+    struct ip_stat* stat = malloc(65536);
     int n = 0;
     read_stat(stat_file, stat, &n);
 
-    printf("N(IP): %d\n", n);
+    printf("Number IP: %d\n", n);
 
-    // line-by-line output each address and number of packets
     struct in_addr tmp;
-    int i;
-    for (i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         tmp.s_addr = stat[i].ip_address;
-        printf("%s: %d\n", inet_ntoa(tmp), stat[i].counter);
+        printf("%s: %d %s\n", inet_ntoa(tmp), stat[i].counter, stat[i].iface);
     }
     printf("\n");
+    free(stat);
 }
+
+void outputif(const char* stat_file, const char* argv)
+{
+
+    char temp[20];
+    strcpy(temp, argv);
+
+    struct ip_stat* stat = malloc(65536);
+    int n = 0;
+    read_stat(stat_file, stat, &n);
+
+    printf("Number IP: %d\n", n);
+
+    struct in_addr tmp;
+    for (int i = 0; i < n; i++) {
+        if (!strcmp(temp, stat[i].iface)) {
+            tmp.s_addr = stat[i].ip_address;
+            printf("%s: %d %s\n", inet_ntoa(tmp), stat[i].counter, stat[i].iface);
+        }
+    }
+    printf("\n");
+ 
+}
+
 
 
 void write_stat(const char* name, const struct ip_stat* stat, const int* size)
 {
-    FILE* f = fopen(name, "wb+");
+    FILE* f = fopen(name, "r+b");
 
     if (f == NULL)
-        return;
+        f = fopen(name,"w+b");
     fwrite(size, sizeof *size, 1, f);
     for (int i = 0; i < *size; i++)
         fwrite(&stat[i], sizeof(struct ip_stat), 1, f);
@@ -100,7 +122,7 @@ void read_iface(const char* name, char* iface)
     FILE* f = fopen(name, "rb");
 
     if (f == NULL) {
-        // setting like default interface
+        // default interface
         strcpy(iface, "eth0");
         return;
     }
